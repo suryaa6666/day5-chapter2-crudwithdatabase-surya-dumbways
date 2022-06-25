@@ -142,9 +142,10 @@ db.connect((err, client, done) => {
     //     let duration = dhm(new Date(enddate) - new Date(startdate));
     //     duration = Math.floor(duration / 30) <= 0 ? duration + ' hari' : duration % 30 == 0 ? Math.floor(duration / 30) + ' bulan ' : Math.floor(duration / 30) + ' bulan ' + duration % 30 + ' hari';
     //     let technologies = req.body.technologies;
-    //     let imagepath = req.files.imageupload.path;
-    //     let imageupload = imagepath.split('\\');
-    //     imageupload = imageupload[imageupload.length - 1];
+    //    // let imagepath = req.files.imageupload.path;
+    //    // let imageupload = imagepath.split('\\');
+    //    // imageupload = imageupload[imageupload.length - 1];
+    // let image = 'projek1.jpg';
     //     // console.log(imageupload);
     //     // console.log(tech);
 
@@ -161,25 +162,47 @@ db.connect((err, client, done) => {
 
     // });
 
-    // app.post('/add-project', (req, res) => {
-    //     let name = req.body.startdate;
-    //     let startdate = req.body.startdate;
-    //     let enddate = req.body.enddate;
-    //     let description = req.body.description;
-    //     let technologies = req.body.technologies;
-    //     let imagepath = req.files.imageupload.path;
-    //     let imageupload = imagepath.split('\\');
-    //     imageupload = imageupload[imageupload.length - 1];
-    //     // console.log(imageupload[imageupload.length - 1]);
+    app.post('/add-project', (req, res) => {
+        let name = req.body.name;
+        let startdate = new Date(req.body.startdate).getTime();
+        let enddate = new Date(req.body.enddate).getTime();
+        let description = req.body.description;
+        let technologies = req.body.technologies;
+        let techstring = '';
+        let userid = 1;
 
-    //     client.query(`INSERT INTO public.tb_project(name, start_date, end_date, description, technologies, image) VALUES(${name},${startdate},${enddate},${description},${technologies},${imageupload})`, (err, result) => {
-    //         if (err) throw err;
+        if (typeof (technologies) == 'string') {
+            technologies = [technologies];
+        }
 
-    //         console.log(result);
-    //         res.redirect('/');
-    //     });
+        for (let x = 0; x < technologies.length; x++) {
+            if (x == technologies.length - 1) {
+                techstring += technologies[x];
+            } else {
+                techstring += technologies[x] + ",";
+            }
+        }
 
-    // });
+        technologies = "{" + techstring + "}";
+
+        // return console.log(technologies);
+
+        // let imagepath = req.files.imageupload.path;
+        // let imageupload = imagepath.split('\\');
+        // imageupload = imageupload[imageupload.length - 1];
+        let image = 'projek1.jpg';
+
+        // return console.log(name, startdate, enddate, description, technologies, image);
+        // console.log(imageupload[imageupload.length - 1]);
+
+        client.query(`INSERT INTO public.tb_project(name, start_date, end_date, description, technologies, image, user_id) VALUES('${name}',${startdate},${enddate},'${description}','${technologies}','${image}', ${userid});`, (err, result) => {
+            if (err) throw err;
+
+            console.log(result);
+            res.redirect('/');
+        });
+
+    });
 
     // app.get('/delete-project/:id', (req, res) => {
     //     let id = req.params.id;
