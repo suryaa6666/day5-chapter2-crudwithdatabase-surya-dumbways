@@ -80,7 +80,7 @@ db.connect((err, client, done) => {
                 }
             });
 
-            console.log(data)
+            // console.log(data)
 
             res.render('index', { isLogin, data });
         });
@@ -128,7 +128,7 @@ db.connect((err, client, done) => {
             project.start_date = convertyyyymmdd(new Date(parseInt(project.start_date)));
             project.end_date = convertyyyymmdd(new Date(parseInt(project.end_date)));
 
-            console.log(project.start_date, project.end_date);
+            // console.log(project.start_date, project.end_date);
 
             let tech = project.technologies.toString();
             res.render('edit-project', { project, tech });
@@ -172,7 +172,7 @@ db.connect((err, client, done) => {
         client.query(query, (err, result) => {
             if (err) throw err;
 
-            console.log(result);
+            // console.log(result);
             res.redirect('/');
         });
     });
@@ -213,7 +213,7 @@ db.connect((err, client, done) => {
         client.query(`INSERT INTO public.tb_project(name, start_date, end_date, description, technologies, image, user_id) VALUES('${name}',${startdate},${enddate},'${description}','${technologies}','${image}', ${userid});`, (err, result) => {
             if (err) throw err;
 
-            console.log(result);
+            // console.log(result);
             res.redirect('/');
         });
 
