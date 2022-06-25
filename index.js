@@ -38,6 +38,7 @@ const convertyyyymmdd = (date) => {
     let mm = new Date(date).getMonth() + 1;
     mm = mm < 10 ? "0" + mm : mm;
     let dd = new Date(date).getDate();
+    dd = dd < 10 ? "0" + dd : dd;
 
     return `${yyyy}-${mm}-${dd}`;
 }
@@ -123,44 +124,58 @@ db.connect((err, client, done) => {
 
             let project = result.rows[0];
 
-            project.start_date = convertyyyymmdd(parseInt(project.start_date));
-            project.end_date = convertyyyymmdd(parseInt(project.end_date));
 
-            // console.log(project);
+            project.start_date = convertyyyymmdd(new Date(parseInt(project.start_date)));
+            project.end_date = convertyyyymmdd(new Date(parseInt(project.end_date)));
+
+            console.log(project.start_date, project.end_date);
 
             let tech = project.technologies.toString();
             res.render('edit-project', { project, tech });
         });
     });
 
-    // app.post('/edit-project/:id, (req, res) => {
-    //     let id = req.params.id;
-    //     let name = req.body.name;
-    //     let startdate = req.body.startdate;
-    //     let enddate = req.body.enddate;
-    //     let description = req.body.description;
-    //     let duration = dhm(new Date(enddate) - new Date(startdate));
-    //     duration = Math.floor(duration / 30) <= 0 ? duration + ' hari' : duration % 30 == 0 ? Math.floor(duration / 30) + ' bulan ' : Math.floor(duration / 30) + ' bulan ' + duration % 30 + ' hari';
-    //     let technologies = req.body.technologies;
-    //    // let imagepath = req.files.imageupload.path;
-    //    // let imageupload = imagepath.split('\\');
-    //    // imageupload = imageupload[imageupload.length - 1];
-    // let image = 'projek1.jpg';
-    //     // console.log(imageupload);
-    //     // console.log(tech);
+    app.post('/edit-project/:id', (req, res) => {
+        let id = req.params.id;
+        let name = req.body.name;
+        let startdate = new Date(req.body.startdate).getTime();
+        let enddate = new Date(req.body.enddate).getTime();
+        let description = req.body.description;
+        let duration = dhm(new Date(enddate) - new Date(startdate));
+        duration = Math.floor(duration / 30) <= 0 ? duration + ' hari' : duration % 30 == 0 ? Math.floor(duration / 30) + ' bulan ' : Math.floor(duration / 30) + ' bulan ' + duration % 30 + ' hari';
+        let technologies = req.body.technologies;
+        let techstring = '';
+        let userid = 1;
 
-    //     let query = `SELECT * FROM public.tb_project SET name=${name}, start_date=${startdate}, end_date=${enddate}, description=${description}, technologies=${technologies}, image=${imageupload} WHERE id=${id}`;
+        if (typeof (technologies) == 'string') {
+            technologies = [technologies];
+        }
 
-    //     client.query(query, (err, result) => {
+        for (let x = 0; x < technologies.length; x++) {
+            if (x == technologies.length - 1) {
+                techstring += technologies[x];
+            } else {
+                techstring += technologies[x] + ",";
+            }
+        }
 
-    //         if (err) throw err;
+        technologies = "{" + techstring + "}";
+        // let imagepath = req.files.imageupload.path;
+        // let imageupload = imagepath.split('\\');
+        // imageupload = imageupload[imageupload.length - 1];
+        let image = 'projek1.jpg';
+        // console.log(imageupload);
+        // console.log(tech);
 
-    //         console.log(result);
-    //         return;
-    //         res.redirect('/');
-    //     });
+        let query = `UPDATE public.tb_project SET name='${name}', start_date=${startdate}, end_date=${enddate}, description='${description}', technologies='${technologies}', image='${image}', user_id=${userid} WHERE id=${id}`;
 
-    // });
+        client.query(query, (err, result) => {
+            if (err) throw err;
+
+            console.log(result);
+            res.redirect('/');
+        });
+    });
 
     app.post('/add-project', (req, res) => {
         let name = req.body.name;
