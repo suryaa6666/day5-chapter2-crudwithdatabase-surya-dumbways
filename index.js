@@ -1,7 +1,7 @@
 const express = require('express');
-const fs = require('fs');
-const multipart = require('connect-multiparty');
-let multipartMiddleware = multipart({ uploadDir: './assets/imageupload' });
+// const fs = require('fs');
+// const multipart = require('connect-multiparty');
+// let multipartMiddleware = multipart({ uploadDir: './assets/imageupload' });
 const db = require('./connection/db');
 
 const app = express();
@@ -61,7 +61,9 @@ db.connect((err, client, done) => {
             if (err) throw err;
 
             let data = result.rows.map((item) => {
-                let duration = dhm(new Date(item.end_date) - new Date(item.start_date));
+                let end_date = new Date(parseInt(item.end_date));
+                let start_date = new Date(parseInt(item.start_date));
+                let duration = dhm(new Date(end_date) - new Date(start_date));
                 duration = Math.floor(duration / 30) <= 0 ? duration + ' hari' : duration % 30 == 0 ? Math.floor(duration / 30) + ' bulan ' : Math.floor(duration / 30) + ' bulan ' + duration % 30 + ' hari';
                 return {
                     ...item,
@@ -92,12 +94,15 @@ db.connect((err, client, done) => {
 
             let projectDetail = result.rows[0];
 
-            let duration = dhm(new Date(projectDetail.end_date) - new Date(projectDetail.start_date));
+            let start_date = new Date(parseInt(projectDetail.start_date));
+            let end_date = new Date(parseInt(projectDetail.end_date));
+
+            let duration = dhm(end_date - start_date);
             duration = Math.floor(duration / 30) <= 0 ? duration + ' hari' : duration % 30 == 0 ? Math.floor(duration / 30) + ' bulan ' : Math.floor(duration / 30) + ' bulan ' + duration % 30 + ' hari';
 
             projectDetail.duration = duration;
-            projectDetail.start_date = convertddmmyyyy(projectDetail.start_date);
-            projectDetail.end_date = convertddmmyyyy(projectDetail.end_date);
+            projectDetail.start_date = convertddmmyyyy(start_date);
+            projectDetail.end_date = convertddmmyyyy(end_date);
 
             res.render('project-detail', { projectDetail });
         });
@@ -118,16 +123,17 @@ db.connect((err, client, done) => {
 
             let project = result.rows[0];
 
-            project.start_date = convertyyyymmdd(project.start_date)
-            project.end_date = convertyyyymmdd(project.end_date)
+            project.start_date = convertyyyymmdd(parseInt(project.start_date));
+            project.end_date = convertyyyymmdd(parseInt(project.end_date));
 
-            console.log(project);
+            // console.log(project);
+
             let tech = project.technologies.toString();
             res.render('edit-project', { project, tech });
         });
     });
 
-    // app.post('/edit-project/:id', multipartMiddleware, (req, res) => {
+    // app.post('/edit-project/:id, (req, res) => {
     //     let id = req.params.id;
     //     let name = req.body.name;
     //     let startdate = req.body.startdate;
@@ -155,20 +161,21 @@ db.connect((err, client, done) => {
 
     // });
 
-    // app.post('/add-project', multipartMiddleware, (req, res) => {
+    // app.post('/add-project', (req, res) => {
+    //     let name = req.body.startdate;
     //     let startdate = req.body.startdate;
     //     let enddate = req.body.enddate;
-    //     let duration = dhm(new Date(enddate) - new Date(startdate));
-    //     duration = Math.floor(duration / 30) <= 0 ? duration + ' hari' : duration % 30 == 0 ? Math.floor(duration / 30) + ' bulan ' : Math.floor(duration / 30) + ' bulan ' + duration % 30 + ' hari';
+    //     let description = req.body.description;
+    //     let technologies = req.body.technologies;
     //     let imagepath = req.files.imageupload.path;
     //     let imageupload = imagepath.split('\\');
     //     imageupload = imageupload[imageupload.length - 1];
     //     // console.log(imageupload[imageupload.length - 1]);
 
-    //     client.query(`INSERT INTO public.tb_project(name, start_date, end_date, description, technologies, image) VALUES(${name},${startdate},${enddate},${description},${technologies},${image})`, (err, result) => {
-
+    //     client.query(`INSERT INTO public.tb_project(name, start_date, end_date, description, technologies, image) VALUES(${name},${startdate},${enddate},${description},${technologies},${imageupload})`, (err, result) => {
     //         if (err) throw err;
 
+    //         console.log(result);
     //         res.redirect('/');
     //     });
 
@@ -186,7 +193,8 @@ db.connect((err, client, done) => {
 
     //         let dataSelected = result.rows[0];
 
-    //         fs.unlinkSync(`assets/imageupload/${dataSelected.imageupload}`);
+    // // fs.unlinkSync(`assets/imageupload/${dataSelected.imageupload}`);
+
     //     });
 
     //     res.redirect('/');
