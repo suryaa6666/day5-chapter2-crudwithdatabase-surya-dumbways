@@ -204,24 +204,24 @@ db.connect((err, client, done) => {
 
     });
 
-    // app.get('/delete-project/:id', (req, res) => {
-    //     let id = req.params.id;
+    app.get('/delete-project/:id', (req, res) => {
+        let id = req.params.id;
 
-    //     client.query(`DELETE FROM public.tb_project WHERE id=${id}`, (err, result) => {
-    //         if (err) throw err;
-    //     });
+        client.query(`DELETE FROM public.tb_project WHERE id=${id}`, (err, result) => {
+            if (err) throw err;
+        });
 
-    //     client.query(`SELECT * FROM public.tb_project WHERE id=${id}`, (err, result) => {
-    //         if (err) throw err;
+        client.query(`SELECT * FROM public.tb_project WHERE id=${id}`, (err, result) => {
+            if (err) throw err;
 
-    //         let dataSelected = result.rows[0];
+            // let dataSelected = result.rows[0];
 
-    // // fs.unlinkSync(`assets/imageupload/${dataSelected.imageupload}`);
+            // fs.unlinkSync(`assets/imageupload/${dataSelected.imageupload}`);
 
-    //     });
+        });
 
-    //     res.redirect('/');
-    // });
+        res.redirect('/');
+    });
 
 });
 
